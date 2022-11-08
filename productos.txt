@@ -1,1 +1,17 @@
-[]
+[
+    {
+    "titulo": "bananas",
+    "precio": 200.00,
+    "url": "https://m.media-amazon.com/images/I/61fZ+YAYGaL._SL1500_.jpg"
+    },
+    {
+    "titulo": "manzanas",
+    "precio": 360.00,
+    "url": "https://tramosdelmercado.odoo.com/web/image/product.template/215/image_1024?unique=68c581a"
+    },
+    {
+    "titulo": "paltas",
+    "precio": 160.00,
+    "url": "https://storage.googleapis.com/portalfruticola/2020/02/6c4efcae-palta-shutterstock_263066297.jpg"
+    }
+]
