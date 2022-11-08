@@ -48,6 +48,7 @@ function armarTablaProducto(producto){
 }
 
 
+
 //Creo el objeto Contenedor
 const contenedor = new Contenedor('./productos.txt');
 
