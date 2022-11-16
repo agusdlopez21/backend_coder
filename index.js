@@ -1,80 +1,92 @@
-//Importo el módulo fs
-const fs = require('fs');
-//Importo el Contenedor
-const Contenedor = require('./Contenedor.js');
-//Importo Express
-const express = require("express");
-
-function armarTablaProductos(productos){
-    let tablaProd = 
-    `<table border="1" align="center" bordercolor="black" cellspacing="2">
-        <caption style="padding: 20px; font-size:20px;"><B>Listado de Productos</B></caption>
-        <tr bgcolor="grey" align="center">
-            <th width=200>Titulo</th>
-            <th width=200>Precio</th>
-            <th width=200>Img</th>
-        </tr>`
-
-    productos.forEach(prod => {
-        tablaProd = tablaProd +
-        `<tr align="center">
-            <th width=200>${prod.titulo}</td>
-            <th width=200>${prod.precio}</td>
-            <th width=200><img src="${prod.url}" alt="${prod.titulo}" width="200" height="200"/></td>
-        </tr>`
-    });
-
-    tablaProd= tablaProd + `</table>`
-
-    return tablaProd;
-}
-
-function armarTablaProducto(producto){
-    const tablaProd = 
-    `<table border="1" align="center" bordercolor="black" cellspacing="2">
-        <caption style="padding: 20px; font-size:20px;"><B>Producto Random</B></caption>
-        <tr bgcolor="grey" align="center">
-            <th width=200>Titulo</th>
-            <th width=200>Precio</th>
-            <th width=200>Img</th>
-        </tr>
-        <tr align="center">
-            <th width=200>${producto.titulo}</td>
-            <th width=200>${producto.precio}</td>
-            <th width=200><img src="${producto.url}" alt="${producto.titulo}" width="200" height="200"/></td>
-        </tr>
-    </table>`
-    return tablaProd;
-}
-
-
-
-//Creo el objeto Contenedor
-const contenedor = new Contenedor('./productos.txt');
-
+const express = require('express');
+const Contenedor = require ('./Contenedor.js');
+const clase = require ('./class.js');
+const { Router } = express;
 const app = express();
+const content = new Contenedor('./productos.txt')
 
-app.get('/', (req,res) => {
-    res.send('<h1 style="color:blue;">Bienvenido al Contenedor de Productos.</h1>');
+
+const PORT = 8080;
+
+app.use(express.static(__dirname +'/public'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+const routerProductos = new Router();
+const routerPro = new Router();
+
+
+
+const produc = [];
+
+//-----DEVUELVE TODOS LOS PRODUCTOS----- 
+
+routerProductos.get('/', async (req, res) => {
+    try
+    {const prod = await content.getAll()
+     res.send(prod)
+    }
+    catch (err){
+     console.log(err)
+    }
 });
 
-app.get('/productos', async (req,res) => {
-    const productos = await contenedor.getAll();
-    let tablaProd = armarTablaProductos(productos);
-    res.send(tablaProd);
+
+//-----DEVUELVE UN PRODCUTOS SEGUN SU ID-----
+
+routerProductos.get('/:id', async (req, res) => {
+    try
+    { const {id} = req.params;
+    console.log(id)
+    const productoId = await content.getById(parseInt(id))
+    res.send(productoId)
+    }
+    catch (err){
+     console.log(err)
+    }
 });
 
-app.get('/productoRandom', async (req,res) => {
-    const productos = await contenedor.getAll();
-    const numeroRand = Math.floor(Math.random() * productos.length);
-    const tablaProd = armarTablaProducto(productos[numeroRand]);
-    res.send(tablaProd);
+
+//-----AGREGA UN NUEVO PRODCUTO----
+
+
+
+routerPro.post('/',  (req, res) =>{
+    const { body } =req
+    produc.push(body);
+    res.send(body);
+
 });
 
-const PORT = process.env.PORT || 8080; //si la var port no esta definida en el environment va por default 8080
-const server = app.listen(PORT, () => {
-    console.log(
-        `Servidor express escuchando en el puerto ${PORT}`
-    );
+
+
+
+//-----ELIMINA UN PRODUCTO SEGUN SU ID-----
+
+routerProductos.delete('/:id', async (req, res) => {
+    try
+    {const {id} = req.params;
+    const productoDel =await content.deleteById(parseInt(id))    
+    res.send(productoDel)
+}
+catch (err){
+    console.log(err)
+}
+} )
+
+
+app.use('/api/productos', routerProductos);
+app.use('/producto', routerPro);
+
+
+
+
+
+
+
+
+const server = app.listen (PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`)
 });
-server.on('error', err => console.log(`error: ${err}`));
+
+server.on("error", error => console.log ("error en el servidor", error))
