@@ -1,92 +1,82 @@
-const express = require('express');
-const Contenedor = require ('./Contenedor.js');
-const clase = require ('./class.js');
-const { Router } = express;
-const app = express();
-const content = new Contenedor('./productos.txt')
+const express = require('express')
+// const { Router } = express
 
+const app = express()
 
-const PORT = 8080;
+app.use(express.json())
+app.use(express.urlencoded({extended: true}))
+app.use('/api', express.static('public'))
 
-app.use(express.static(__dirname +'/public'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const productos = []
 
-const routerProductos = new Router();
-const routerPro = new Router();
+// const routerProductos = new Router()
+const routerProductos = express.Router()
 
-
-
-const produc = [];
-
-//-----DEVUELVE TODOS LOS PRODUCTOS----- 
-
-routerProductos.get('/', async (req, res) => {
-    try
-    {const prod = await content.getAll()
-     res.send(prod)
+routerProductos.post('/', (req, res) => {
+    if (productos.length == 0){
+    productos.push({...req.body, id: 1} )
+    res.json('Se creo exitosamente el nuevo producto con el id: 1')
+    } else {
+        const ultimoId = productos.reverse()
+    productos.push({...req.body, id: ultimoId[0].id + 1} )
+    res.json('Se creo exitosamente el nuevo producto con el id: ' + (ultimoId[0].id + 1))
     }
-    catch (err){
-     console.log(err)
+})
+
+routerProductos.get('/', (req, res) => {
+    res.json(productos)
+})
+
+
+
+routerProductos.get('/:id', (req, res) => {
+    let id = req.params.id
+   let resultado = productos.filter( function (productos) {
+                return productos.id == id
+                
+              })
+              
+            let resultado1 = (resultado.length > 0) ? resultado[0] : null
+
+res.json(resultado1)
+})
+
+routerProductos.put('/:id', (req, res) => {
+    const id = req.params.id
+    const replaced = req.body
+
+    if (isNaN(id)) {
+        return res.json( {error: "el valor ingresado no es un numero"})
     }
-});
+    
+    const find = productos.find(element => element.id === id)
 
+    const index = productos.indexOf(find)
 
-//-----DEVUELVE UN PRODCUTOS SEGUN SU ID-----
+    productos.splice(index, 1, replaced)
+    res.json({ok: refreshed})
+})
 
-routerProductos.get('/:id', async (req, res) => {
-    try
-    { const {id} = req.params;
-    console.log(id)
-    const productoId = await content.getById(parseInt(id))
-    res.send(productoId)
+routerProductos.delete('/:id', (req, res) => {
+    const id = req.params.id
+    if (isNaN(id)) {
+        return res.json( {error: "el valor ingresado no es un numero"})
     }
-    catch (err){
-     console.log(err)
-    }
-});
+
+    const index = productos.indexOf(productos.find(element => element.id ===id))
+    productos.splice(index,1)
+
+    res.json({
+        result: 'ok',
+        id: req.params.id
+    })
+
+})
 
 
-//-----AGREGA UN NUEVO PRODCUTO----
+app.use('/api/productos', routerProductos)
 
-
-
-routerPro.post('/',  (req, res) =>{
-    const { body } =req
-    produc.push(body);
-    res.send(body);
-
-});
-
-
-
-
-//-----ELIMINA UN PRODUCTO SEGUN SU ID-----
-
-routerProductos.delete('/:id', async (req, res) => {
-    try
-    {const {id} = req.params;
-    const productoDel =await content.deleteById(parseInt(id))    
-    res.send(productoDel)
-}
-catch (err){
-    console.log(err)
-}
-} )
-
-
-app.use('/api/productos', routerProductos);
-app.use('/producto', routerPro);
-
-
-
-
-
-
-
-
-const server = app.listen (PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`)
-});
-
-server.on("error", error => console.log ("error en el servidor", error))
+  
+const server = app.listen(8080, () => {
+    console.log('escuchando en el 8080')
+})

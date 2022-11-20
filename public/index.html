@@ -1,21 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INGRESO DE PRODCUTOS</title>
+    <title>Formularios de Ingreso</title>
 </head>
 <body>
-    
-    <h1>Ingrese Productos</h1>
-    <form action ="/producto" method="post" name="productos">
-        ID: <input type="number" name="id" required><br>
-        Producto: <input type="tex" name="producto" required><br>
-        Precio: <input type="number" name="precio" required><br>
+
+    <h2>Ingrese Producto</h2>
+    <form action="/api/productos" method="POST">
+        Title: <input type="text" name="title">
+        Price: <input type="text" name="price">
+        Thumbnail: <input type="text" name="thumbnail">
         <button>Enviar</button>
- 
     </form>
-    
+
 </body>
 </html>
